@@ -22,55 +22,69 @@ def getWebsite():
         print(f"Błąd http: {e}")
         return None
 
+#czytanie stony
 def readWebsite(page):
-    soup = BeautifulSoup(page.content, "html.parser")
-    #print(soup.prettify())
-    nadwozia = soup.find_all("div",class_="ooa-1d3w5wq e1kl0nws1")
-    #nadwozia = soup.select("div.ooa-1xfqg6o")
-    print(f'znalazłem {len(nadwozia)} linków')
-    if nadwozia:
-        for e in nadwozia:
-            print(e.text)
+
 
     driver = webdriver.Chrome()
     driver.maximize_window()
     # Otwarcie strony internetowej
     driver.get('https://www.otomoto.pl/osobowe?search%5Badvanced_search_expanded%5D=true')
-
-    button = driver.find_element(By.XPATH,
+    # Kliknięcie ciasteczek
+    cookies = driver.find_element(By.XPATH,
                                  '//*[@id="onetrust-accept-btn-handler"]')
 
-    # Kliknięcie guzika
-    button.click()
+    cookies.click()
 
-    time.sleep(2)
-
-    button = driver.find_element(By.XPATH,
+   # time.sleep(2)
+    # kliknij marki (strzałkę)
+    brands_open = driver.find_element(By.XPATH,
                                  '//*[@id="__next"]/div/div/div/div[2]/div[1]/div/form/section/div/div[1]')
 
-    # Kliknięcie guzika
-    button.click()
- 
-    list_marki = driver.find_elements(By.XPATH,
+    brands_open.click()
+    #pobiera listę marek
+    list_marki = driver.find_element(By.XPATH,
                                 '//*[@id="__next"]/div/div/div/div[2]/div[1]/div/form/section/div/div[1]/div/ul')
-    for l in list_marki:
-        checkBox = l.find_element(By.XPATH, '//*[@id="__next"]/div/div/div/div[2]/div[1]/div/form/section/div/div[1]/div/ul/li[2]/div/label/input')
-        checkBox.click()
-        button = driver.find_element(By.XPATH, '//*[@id="__next"]/div/div/div/div[2]/div[1]/div/form/section/div/div[1]/div/div/span/button')
-        button.click()
-        button = driver.find_element(By.XPATH,
-                                       '//*[@id="__next"]/div/div/div/div[2]/div[1]/div/form/section/div/div[2]')
-        button.click()
-        time.sleep(1)
-        button = driver.find_element(By.XPATH,
-                                     '//*[@id="__next"]/div/div/div/div[2]/div[1]/div/form/section/div/div[2]/div/fieldset/span/button')
-        button.click()
+    marki = list_marki.find_elements(By.TAG_NAME, 'li')
+    for marka in marki:
+        print(marka.text)
+        if not marka.text == "Wszystkie marki":
+            test = marka.find_element(By.TAG_NAME, 'input')
+            time.sleep(1)
+            if not test.is_selected():
+                test.click()
+
+    # for marka in marki:
+    #
+    #     print(marka.text)
+    #     select_marka = marka.find_element(By.XPATH, '//*[@id="__next"]/div/div/div/div[2]/div[1]/div/form/section/div/div[1]/div/ul/li[2]/div/label/input')
+    #     select_marka.click()
+    #     brands_close = driver.find_element(By.XPATH, '//*[@id="__next"]/div/div/div/div[2]/div[1]/div/form/section/div/div[1]/div/div/span/button')
+    #     brands_close.click()
+    #     models_open = driver.find_element(By.XPATH,
+    #                                    '//*[@id="__next"]/div/div/div/div[2]/div[1]/div/form/section/div/div[2]')
+    #     models_open.click()
+    #
+    #     lista_modeli = models_open.find_elements(By.XPATH,
+    #                                  '//*[@id="__next"]/div/div/div/div[2]/div[1]/div/form/section/div/div[2]/div/ul')
+    #     for model in lista_modeli:
+    #         print(model.text)
+    #
+    #     models_close = driver.find_element(By.XPATH,
+    #                                        '//*[@id="__next"]/div/div/div/div[2]/div[1]/div/form/section/div/div[2]/div/fieldset/span/button')
+    #     models_close.click()
+    #
+    #     time.sleep(2)
+    #
+    #     brand_cancel = driver.find_element(By.XPATH, '//*[@id="__next"]/div/div/div/div[2]/div[1]/div/form/section/div/div[1]/div/div/span/button')
+    #     brand_cancel.click()
+    #     time.sleep(2)
+    #     brands_open2 = driver.find_element(By.XPATH, '//*[@id="__next"]/div/div/div/div[2]/div[1]/div/form/section/div/div[1]/div/div/span/button')
+    #     brands_open2.click()
 
 
 
 
-    for l in list_marki:
-        print(l.text)
 
 
 
