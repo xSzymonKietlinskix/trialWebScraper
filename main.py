@@ -1,5 +1,6 @@
+import re
 import requests
-from bs4 import BeautifulSoup
+#from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.by import By
@@ -23,7 +24,7 @@ def getWebsite():
         return None
 
 #czytanie stony
-def readWebsite(page):
+def readWebsite(page, min_amount):
 
 
     driver = webdriver.Chrome()
@@ -47,12 +48,44 @@ def readWebsite(page):
                                 '//*[@id="__next"]/div/div/div/div[2]/div[1]/div/form/section/div/div[1]/div/ul')
     marki = list_marki.find_elements(By.TAG_NAME, 'li')
     for marka in marki:
+        print("TEST")
         print(marka.text)
+        print(len(marki))
+        l_egz = r'\((.*?)\)'
         if not marka.text == "Wszystkie marki":
-            test = marka.find_element(By.TAG_NAME, 'input')
-            time.sleep(1)
-            if not test.is_selected():
-                test.click()
+            dopasowanie = re.search(l_egz, marka.text)
+            if int(dopasowanie.group(1)) > min_amount:
+                print(dopasowanie.group(1))
+                print(marka.text)
+                test = marka.find_element(By.TAG_NAME, 'input')
+                if not test.is_selected():
+                    test.click()
+                    brands_close = driver.find_element(By.XPATH, '//*[@id="__next"]/div/div/div/div[2]/div[1]/div/form/section/div/div[1]/div/div/span/button')
+                    brands_close.click()
+                    models_open = driver.find_element(By.XPATH,'//*[@id="__next"]/div/div/div/div[2]/div[1]/div/form/section/div/div[2]')
+                    models_open.click()
+                    lista_modeli = models_open.find_elements(By.XPATH,'//*[@id="__next"]/div/div/div/div[2]/div[1]/div/form/section/div/div[2]/div/ul')
+                    for model in lista_modeli:
+                         print(model.text)
+                    models_close = driver.find_element(By.XPATH,
+                                                       '/html/body/div[1]/div/div/div/div[2]/div[1]/div/form/section/div/div[2]/div/div/span/button')
+                    # time.sleep(2)
+                    # models_close.click()
+
+                    # time.sleep(2)
+
+                    brand_cancel = driver.find_element(By.XPATH,
+                                                       '//*[@id="__next"]/div/div/div/div[2]/div[1]/div/form/section/div/div[1]/div/div/span/button')
+                    brand_cancel.click()
+                    time.sleep(2)
+                    brands_open2 = driver.find_element(By.XPATH,
+                                                       '//*[@id="__next"]/div/div/div/div[2]/div[1]/div/form/section/div/div[1]/div/div/span/button')
+                    brands_open2.click()
+                    list_marki = driver.find_element(By.XPATH,
+                                                     '//*[@id="__next"]/div/div/div/div[2]/div[1]/div/form/section/div/div[1]/div/ul')
+                    marki = list_marki.find_elements(By.TAG_NAME, 'li')
+
+
 
     # for marka in marki:
     #
@@ -70,17 +103,17 @@ def readWebsite(page):
     #     for model in lista_modeli:
     #         print(model.text)
     #
-    #     models_close = driver.find_element(By.XPATH,
-    #                                        '//*[@id="__next"]/div/div/div/div[2]/div[1]/div/form/section/div/div[2]/div/fieldset/span/button')
-    #     models_close.click()
-    #
-    #     time.sleep(2)
-    #
-    #     brand_cancel = driver.find_element(By.XPATH, '//*[@id="__next"]/div/div/div/div[2]/div[1]/div/form/section/div/div[1]/div/div/span/button')
-    #     brand_cancel.click()
-    #     time.sleep(2)
-    #     brands_open2 = driver.find_element(By.XPATH, '//*[@id="__next"]/div/div/div/div[2]/div[1]/div/form/section/div/div[1]/div/div/span/button')
-    #     brands_open2.click()
+        # models_close = driver.find_element(By.XPATH,
+        #                                    '//*[@id="__next"]/div/div/div/div[2]/div[1]/div/form/section/div/div[2]/div/fieldset/span/button')
+        # models_close.click()
+        #
+        # time.sleep(2)
+        #
+        # brand_cancel = driver.find_element(By.XPATH, '//*[@id="__next"]/div/div/div/div[2]/div[1]/div/form/section/div/div[1]/div/div/span/button')
+        # brand_cancel.click()
+        # time.sleep(2)
+        # brands_open2 = driver.find_element(By.XPATH, '//*[@id="__next"]/div/div/div/div[2]/div[1]/div/form/section/div/div[1]/div/div/span/button')
+        # brands_open2.click()
 
 
 
@@ -96,5 +129,5 @@ def readWebsite(page):
 
 if __name__ == '__main__':
     page = getWebsite()
-    readWebsite((page))
+    readWebsite(page,100)
 
