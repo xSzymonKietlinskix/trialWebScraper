@@ -4,6 +4,9 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 import csv
 from car import Car
+from googlesearch import search
+from selenium.webdriver.chrome.options import Options
+
 
 
 def read_from_csv(fileName):
@@ -121,7 +124,7 @@ def read_models(brands, min_amount, max_attempts=3, start_from_brand="none"):
                     if int(found.group(1)) > min_amount:
                         valid_models.append(m.text)
 
-                with open('models.csv', 'a', encoding='UTF8', newline='') as f:
+                with open('modelssss.csv', 'a', encoding='UTF8', newline='') as f:
                     writer = csv.writer(f)
                     for m in valid_models:
                         if m == "Wszytskie modele":
@@ -227,6 +230,47 @@ def read_generations(cars, min_amount=5, max_attempts=3, start_from_brand="none"
                 driver.quit()
 
 
+def find_spec(cars):
+    for car in cars:
+        if car.brand != "mazda":
+            continue
+        if car.generation == 'none':
+            query = car.brand + ' ' + car.model + ' ultimate specs'
+        else:
+            query = car.brand + ' ' + car.model + ' ' + car.generation + ' generation ultimate specs'
+
+        print(query)
+
+        for i in search(query, num=3, stop=3):
+            if i.startswith('https://www.ultimatespecs.com'):
+                url = i
+                break
+
+        print(url)
+
+        driver = webdriver.Chrome()
+        driver.get(url)
+        specs = driver.find_element(By.XPATH,
+                                      '/html/body/section[1]/div/div[1]/div/div[1]/div[4]/div/div[3]/div/div[3]/div')
+        petrol_engines = driver.find_element(By.XPATH,'/html/body/section[1]/div/div[1]/div/div[1]/div[4]/div/div[3]/div/div[10]')
+        diesel_engines = driver.find_element(By.XPATH,
+                                             '/html/body/section[1]/div/div[1]/div/div[1]/div[4]/div/div[3]/div/div[11]')
+        print(petrol_engines.text)
+        # pattern = r"Length: (\d+\.\d+) cm \/ .*? Width: (\d+\.\d+) cm \/ .*? Height: (\d+\.\d+) cm \/ .*? Wheelbase: (\d+\.\d+) cm \/ "
+        # production_years_pattern = r"Production years: from (\d+) to (\d+)"
+        # matches = re.search(pattern, specs.text)
+        # print(matches.group(1))
+        # print(matches.group(2))
+
+        driver.quit()
+
+
+
+
+
+
+
+
 if __name__ == '__main__':
     print("1. Brands \n 2. Models \n 3. Generations \n 4. Models, start from brand xyz")
     choose = input("Choose number: ")
@@ -242,3 +286,6 @@ if __name__ == '__main__':
         print("Currently not available")
         # brands_list = read_from_csv('brands.csv')
         # read_models(brands_list, 10, 1, "mini")
+    elif int(choose) == 5:
+        cars = Car.create_car_list_gen('generations.csv')
+        find_spec(cars)
